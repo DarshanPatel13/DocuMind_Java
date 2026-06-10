@@ -1,0 +1,17 @@
+# Maven
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Runtime data - uploaded PDFs are never committed
+storage/
+
+# Misc
+*.log
+.DS_Store

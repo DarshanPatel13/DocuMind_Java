@@ -1,0 +1,125 @@
+spring:
+  application:
+    name: documind
+
+  # ---------------------------------------------------------------------------
+  # Multipart upload limits. DocumentService validates size in code too, so the
+  # API returns a clean JSON error instead of a raw container error page.
+  # ---------------------------------------------------------------------------
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL + pgvector: document metadata and chunk embeddings.
+  # The schema is owned by init-scripts/01-init.sql (run by the postgres
+  # container on first start). ddl-auto stays 'none' because Hibernate cannot
+  # generate or validate the vector(1536) column type.
+  # ---------------------------------------------------------------------------
+  datasource:
+    url: jdbc:postgresql://localhost:5432/documind
+    username: documind
+    password: documind
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false   # no lazy-loading from the web layer; keeps connections short-lived
+
+  # ---------------------------------------------------------------------------
+  # MongoDB: conversation history (append-only, schema-flexible documents).
+  # auto-index-creation builds the @Indexed index on conversationId at startup.
+  # ---------------------------------------------------------------------------
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/documind
+      auto-index-creation: true
+
+  # ---------------------------------------------------------------------------
+  # Kafka: async ingestion pipeline, JSON-serialized event records.
+  # ErrorHandlingDeserializer wraps the JSON deserializer so a malformed
+  # ("poison pill") message goes to the error handler instead of crash-looping
+  # the consumer forever.
+  # ---------------------------------------------------------------------------
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    consumer:
+      group-id: documind-ingestion
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.darshan.documind.dto
+        spring.json.value.default.type: com.darshan.documind.dto.DocumentUploadedEvent
+        spring.json.use.type.headers: false
+
+  # ---------------------------------------------------------------------------
+  # Spring AI. Application code depends only on the ChatModel and EmbeddingModel
+  # INTERFACES; which provider implements them is decided right here.
+  # ---------------------------------------------------------------------------
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}          # never hardcode keys; export it in the shell
+      chat:
+        options:
+          model: gpt-4o-mini              # cheap, fast, strong enough for grounded Q&A
+          temperature: 0.2                # low temperature = less creative drift, tighter grounding
+      embedding:
+        options:
+          model: text-embedding-3-small
+          dimensions: 1536                # must match vector(1536) in document_chunks
+
+    # ===========================================================================
+    # SWITCHING THE CHAT MODEL TO ANTHROPIC CLAUDE (config + dependency only)
+    #
+    #   1. In pom.xml, uncomment the spring-ai-starter-model-anthropic dependency.
+    #   2. Uncomment the block below. spring.ai.model.chat selects WHICH provider
+    #      supplies the ChatModel bean; embeddings stay on OpenAI because
+    #      Anthropic does not offer an embeddings API.
+    #   3. Export ANTHROPIC_API_KEY and restart.
+    #
+    # Zero Java changes: AskService only knows the ChatModel interface.
+    # ===========================================================================
+    # model:
+    #   chat: anthropic
+    #   embedding: openai
+    # anthropic:
+    #   api-key: ${ANTHROPIC_API_KEY}
+    #   chat:
+    #     options:
+    #       model: claude-sonnet-4-6
+    #       temperature: 0.2
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html      # interactive API docs and try-it-out console
+
+logging:
+  level:
+    com.darshan.documind: INFO
+    org.apache.kafka: WARN      # the raw Kafka client is very chatty at INFO
+
+# -------------------------------------------------------------------------------
+# Application-specific settings, bound type-safely to DocuMindProperties.
+# -------------------------------------------------------------------------------
+documind:
+  storage-dir: ./storage              # raw uploaded PDFs land here (gitignored)
+  chunking:
+    chunk-size-tokens: 800            # ~3200 chars per chunk; rationale in TextChunker
+    overlap-tokens: 100               # consecutive chunks share ~400 chars
+    chars-per-token: 4                # heuristic: 1 token is ~4 characters of English text
+  kafka:
+    document-events-topic: document-events
+    document-events-dlt-topic: document-events.DLT
+  ask:
+    top-k: 4                          # chunks retrieved as context per question
+  rate-limit:
+    requests-per-minute: 10           # per client IP, applied to /api/ask only

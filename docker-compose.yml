@@ -1,0 +1,62 @@
+# DocuMind infrastructure - one command brings up everything the app needs:
+#
+#     docker compose up -d
+#
+# Postgres 16 + pgvector (vector store), MongoDB (conversation history),
+# Kafka in KRaft mode (no ZooKeeper).
+services:
+
+  postgres:
+    # PostgreSQL 16 with the pgvector extension pre-installed.
+    image: pgvector/pgvector:pg16
+    container_name: documind-postgres
+    environment:
+      POSTGRES_DB: documind
+      POSTGRES_USER: documind
+      POSTGRES_PASSWORD: documind
+    ports:
+      - "5432:5432"
+    volumes:
+      # Everything in /docker-entrypoint-initdb.d runs once, on first start:
+      # 01-init.sql enables the vector extension and creates the schema.
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U documind -d documind"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mongodb:
+    image: mongo:7
+    container_name: documind-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+  # Kafka 3.7 in KRaft mode: the broker acts as its own controller,
+  # so there is no ZooKeeper container to manage.
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: documind-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      # Clients on the host connect to localhost:9092.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      # Single-broker dev cluster: replication factor 1 everywhere.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+volumes:
+  pgdata:
+  mongodata:

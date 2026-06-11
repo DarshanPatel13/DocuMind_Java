@@ -1,4 +1,4 @@
-package com.darshan.documind.exception;
+package com.org.documind.exception;
 
 import java.util.UUID;
 

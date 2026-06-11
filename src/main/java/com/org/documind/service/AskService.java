@@ -1,14 +1,14 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.config.DocuMindProperties;
-import com.darshan.documind.dto.AskRequest;
-import com.darshan.documind.dto.AskResponse;
-import com.darshan.documind.dto.Citation;
-import com.darshan.documind.entity.ConversationTurn;
-import com.darshan.documind.repository.ChunkMatch;
-import com.darshan.documind.repository.ConversationTurnRepository;
-import com.darshan.documind.repository.DocumentChunkRepository;
-import com.darshan.documind.repository.VectorLiterals;
+import com.org.documind.config.DocuMindProperties;
+import com.org.documind.dto.AskRequest;
+import com.org.documind.dto.AskResponse;
+import com.org.documind.dto.Citation;
+import com.org.documind.entity.ConversationTurn;
+import com.org.documind.repository.ChunkMatch;
+import com.org.documind.repository.ConversationTurnRepository;
+import com.org.documind.repository.DocumentChunkRepository;
+import com.org.documind.repository.VectorLiterals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.messages.SystemMessage;

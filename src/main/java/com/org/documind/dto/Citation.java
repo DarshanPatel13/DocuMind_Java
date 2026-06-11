@@ -1,4 +1,4 @@
-package com.darshan.documind.dto;
+package com.org.documind.dto;
 
 /**
  * A pointer to the exact chunk an answer was grounded on — rendered in answers

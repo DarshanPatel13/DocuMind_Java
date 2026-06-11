@@ -1,6 +1,6 @@
-package com.darshan.documind.repository;
+package com.org.documind.repository;
 
-import com.darshan.documind.entity.ConversationTurn;
+import com.org.documind.entity.ConversationTurn;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

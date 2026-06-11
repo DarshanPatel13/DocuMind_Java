@@ -1,13 +1,13 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.config.DocuMindProperties;
-import com.darshan.documind.dto.DocumentUploadedEvent;
-import com.darshan.documind.dto.UploadResponse;
-import com.darshan.documind.entity.DocumentEntity;
-import com.darshan.documind.entity.DocumentStatus;
-import com.darshan.documind.exception.InvalidFileException;
-import com.darshan.documind.kafka.DocumentEventProducer;
-import com.darshan.documind.repository.DocumentRepository;
+import com.org.documind.config.DocuMindProperties;
+import com.org.documind.dto.DocumentUploadedEvent;
+import com.org.documind.dto.UploadResponse;
+import com.org.documind.entity.DocumentEntity;
+import com.org.documind.entity.DocumentStatus;
+import com.org.documind.exception.InvalidFileException;
+import com.org.documind.kafka.DocumentEventProducer;
+import com.org.documind.repository.DocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

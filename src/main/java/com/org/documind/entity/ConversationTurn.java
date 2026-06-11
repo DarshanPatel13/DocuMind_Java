@@ -1,6 +1,6 @@
-package com.darshan.documind.entity;
+package com.org.documind.entity;
 
-import com.darshan.documind.dto.Citation;
+import com.org.documind.dto.Citation;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;

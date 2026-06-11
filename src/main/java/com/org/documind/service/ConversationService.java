@@ -1,10 +1,10 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.dto.ConversationHistoryResponse;
-import com.darshan.documind.dto.ConversationTurnResponse;
-import com.darshan.documind.entity.ConversationTurn;
-import com.darshan.documind.exception.ConversationNotFoundException;
-import com.darshan.documind.repository.ConversationTurnRepository;
+import com.org.documind.dto.ConversationHistoryResponse;
+import com.org.documind.dto.ConversationTurnResponse;
+import com.org.documind.entity.ConversationTurn;
+import com.org.documind.exception.ConversationNotFoundException;
+import com.org.documind.repository.ConversationTurnRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

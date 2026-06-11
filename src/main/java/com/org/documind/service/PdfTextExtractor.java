@@ -1,6 +1,6 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.exception.IngestionException;
+import com.org.documind.exception.IngestionException;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;

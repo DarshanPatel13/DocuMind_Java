@@ -1,4 +1,4 @@
-package com.darshan.documind.repository;
+package com.org.documind.repository;
 
 import java.util.UUID;
 

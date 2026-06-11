@@ -1,7 +1,7 @@
-package com.darshan.documind.config;
+package com.org.documind.config;
 
-import com.darshan.documind.exception.RateLimitExceededException;
-import com.darshan.documind.service.RateLimitService;
+import com.org.documind.exception.RateLimitExceededException;
+import com.org.documind.service.RateLimitService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;

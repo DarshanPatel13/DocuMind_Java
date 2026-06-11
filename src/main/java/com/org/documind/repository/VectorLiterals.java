@@ -1,4 +1,4 @@
-package com.darshan.documind.repository;
+package com.org.documind.repository;
 
 /**
  * Renders a float[] as the pgvector text literal {@code [v1,v2,...]} consumed

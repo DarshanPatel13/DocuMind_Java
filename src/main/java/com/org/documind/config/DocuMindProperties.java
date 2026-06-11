@@ -1,4 +1,4 @@
-package com.darshan.documind.config;
+package com.org.documind.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

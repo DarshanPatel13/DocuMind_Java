@@ -1,6 +1,6 @@
-package com.darshan.documind.config;
+package com.org.documind.config;
 
-import com.darshan.documind.service.RateLimitService;
+import com.org.documind.service.RateLimitService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

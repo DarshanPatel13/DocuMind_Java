@@ -1,6 +1,6 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.config.DocuMindProperties;
+import com.org.documind.config.DocuMindProperties;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

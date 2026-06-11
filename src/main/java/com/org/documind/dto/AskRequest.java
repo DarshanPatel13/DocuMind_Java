@@ -1,4 +1,4 @@
-package com.darshan.documind.dto;
+package com.org.documind.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

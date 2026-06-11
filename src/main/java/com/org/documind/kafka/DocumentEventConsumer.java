@@ -1,7 +1,7 @@
-package com.darshan.documind.kafka;
+package com.org.documind.kafka;
 
-import com.darshan.documind.dto.DocumentUploadedEvent;
-import com.darshan.documind.service.IngestionService;
+import com.org.documind.dto.DocumentUploadedEvent;
+import com.org.documind.service.IngestionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;

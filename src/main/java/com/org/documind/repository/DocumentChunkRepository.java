@@ -1,6 +1,6 @@
-package com.darshan.documind.repository;
+package com.org.documind.repository;
 
-import com.darshan.documind.entity.DocumentChunkEntity;
+import com.org.documind.entity.DocumentChunkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

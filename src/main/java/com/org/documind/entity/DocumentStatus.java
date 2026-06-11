@@ -1,4 +1,4 @@
-package com.darshan.documind.entity;
+package com.org.documind.entity;
 
 /** Lifecycle of an uploaded document as it moves through the ingestion pipeline. */
 public enum DocumentStatus {

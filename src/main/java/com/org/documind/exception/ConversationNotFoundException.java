@@ -1,4 +1,4 @@
-package com.darshan.documind.exception;
+package com.org.documind.exception;
 
 public class ConversationNotFoundException extends RuntimeException {
 

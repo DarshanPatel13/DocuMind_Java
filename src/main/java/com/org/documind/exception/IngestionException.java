@@ -1,4 +1,4 @@
-package com.darshan.documind.exception;
+package com.org.documind.exception;
 
 /**
  * Thrown anywhere in the ingestion pipeline. Propagates out of the Kafka

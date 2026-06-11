@@ -1,4 +1,4 @@
-package com.darshan.documind.entity;
+package com.org.documind.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
-package com.darshan.documind.repository;
+package com.org.documind.repository;
 
-import com.darshan.documind.entity.DocumentEntity;
+import com.org.documind.entity.DocumentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

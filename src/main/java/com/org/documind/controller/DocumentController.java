@@ -1,8 +1,8 @@
-package com.darshan.documind.controller;
+package com.org.documind.controller;
 
-import com.darshan.documind.dto.DocumentResponse;
-import com.darshan.documind.dto.UploadResponse;
-import com.darshan.documind.service.DocumentService;
+import com.org.documind.dto.DocumentResponse;
+import com.org.documind.dto.UploadResponse;
+import com.org.documind.service.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;

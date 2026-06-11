@@ -1,6 +1,6 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.config.DocuMindProperties;
+import com.org.documind.config.DocuMindProperties;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

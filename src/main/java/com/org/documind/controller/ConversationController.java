@@ -1,7 +1,7 @@
-package com.darshan.documind.controller;
+package com.org.documind.controller;
 
-import com.darshan.documind.dto.ConversationHistoryResponse;
-import com.darshan.documind.service.ConversationService;
+import com.org.documind.dto.ConversationHistoryResponse;
+import com.org.documind.service.ConversationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;

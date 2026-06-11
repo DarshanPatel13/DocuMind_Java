@@ -1,9 +1,9 @@
-package com.darshan.documind.config;
+package com.org.documind.config;
 
-import com.darshan.documind.dto.DocumentUploadedEvent;
-import com.darshan.documind.entity.DocumentStatus;
-import com.darshan.documind.exception.DocumentNotFoundException;
-import com.darshan.documind.repository.DocumentRepository;
+import com.org.documind.dto.DocumentUploadedEvent;
+import com.org.documind.entity.DocumentStatus;
+import com.org.documind.exception.DocumentNotFoundException;
+import com.org.documind.repository.DocumentRepository;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

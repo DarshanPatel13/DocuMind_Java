@@ -1,4 +1,4 @@
-package com.darshan.documind.dto;
+package com.org.documind.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

@@ -1,4 +1,4 @@
-package com.darshan.documind.dto;
+package com.org.documind.dto;
 
 import java.util.List;
 

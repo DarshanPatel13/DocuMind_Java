@@ -1,5 +1,6 @@
-package com.darshan.documind;
+package com.org.documind;
 
+import com.org.documind.config.DocuMindProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -8,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  * DocuMind — RAG document Q&A service.
  *
  * <p>{@code @ConfigurationPropertiesScan} picks up
- * {@link com.darshan.documind.config.DocuMindProperties} so every app-specific
+ * {@link DocuMindProperties} so every app-specific
  * setting is bound once, type-safely, from application.yml.</p>
  */
 @SpringBootApplication

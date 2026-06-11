@@ -1,13 +1,13 @@
-package com.darshan.documind.service;
+package com.org.documind.service;
 
-import com.darshan.documind.dto.DocumentUploadedEvent;
-import com.darshan.documind.entity.DocumentEntity;
-import com.darshan.documind.entity.DocumentStatus;
-import com.darshan.documind.exception.DocumentNotFoundException;
-import com.darshan.documind.exception.IngestionException;
-import com.darshan.documind.repository.DocumentChunkRepository;
-import com.darshan.documind.repository.DocumentRepository;
-import com.darshan.documind.repository.VectorLiterals;
+import com.org.documind.dto.DocumentUploadedEvent;
+import com.org.documind.entity.DocumentEntity;
+import com.org.documind.entity.DocumentStatus;
+import com.org.documind.exception.DocumentNotFoundException;
+import com.org.documind.exception.IngestionException;
+import com.org.documind.repository.DocumentChunkRepository;
+import com.org.documind.repository.DocumentRepository;
+import com.org.documind.repository.VectorLiterals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;

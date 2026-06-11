@@ -1,6 +1,6 @@
-package com.darshan.documind.exception;
+package com.org.documind.exception;
 
-import com.darshan.documind.dto.ErrorResponse;
+import com.org.documind.dto.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

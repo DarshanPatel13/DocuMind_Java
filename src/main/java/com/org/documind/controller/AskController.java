@@ -1,8 +1,8 @@
-package com.darshan.documind.controller;
+package com.org.documind.controller;
 
-import com.darshan.documind.dto.AskRequest;
-import com.darshan.documind.dto.AskResponse;
-import com.darshan.documind.service.AskService;
+import com.org.documind.dto.AskRequest;
+import com.org.documind.dto.AskResponse;
+import com.org.documind.service.AskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

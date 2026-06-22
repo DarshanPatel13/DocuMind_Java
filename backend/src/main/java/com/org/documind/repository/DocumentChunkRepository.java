@@ -19,7 +19,7 @@ import java.util.UUID;
  * at this scale and keeps the mapping dead simple.</p>
  *
  * <p>{@code <=>} is pgvector's cosine-distance operator. Using it in ORDER BY
- * is exactly what lets the IVFFlat index (built with vector_cosine_ops in
+ * is exactly what lets the HNSW index (built with vector_cosine_ops in
  * 01-init.sql) accelerate the search.</p>
  */
 public interface DocumentChunkRepository extends JpaRepository<DocumentChunkEntity, UUID> {

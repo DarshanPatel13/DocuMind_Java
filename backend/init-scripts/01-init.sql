@@ -32,27 +32,23 @@ CREATE INDEX IF NOT EXISTS idx_chunks_document_id ON document_chunks (document_i
 
 -- Approximate nearest-neighbour (ANN) index for cosine similarity search.
 --
--- WHY IVFFLAT (vs HNSW):
---   * IVFFlat partitions the vectors into 'lists' clusters via k-means at
---     index-build time; a query only scans the few closest clusters instead
---     of every row. It is cheap to build, light on memory, and entirely
---     adequate up to the low hundreds of thousands of vectors.
---   * HNSW builds a multi-layer proximity graph instead: better recall and
---     latency at large scale and no "training" step (it works well even when
---     rows are inserted after index creation), but builds are slower and the
---     index uses significantly more memory.
---   * IVFFlat caveat worth knowing: the clusters reflect the data present at
---     CREATE INDEX time. We create it up-front for simplicity (with demo-sized
---     data Postgres will often just sequential-scan anyway, which is fine);
---     after a real bulk load you would REINDEX so the clusters match the
---     actual data distribution.
+-- IVFFLAT vs HNSW — and why this schema uses HNSW:
+--   * IVFFlat partitions vectors into 'lists' clusters via k-means AT INDEX-BUILD
+--     TIME, then a query scans only the closest clusters. It is cheap and light,
+--     but its clusters reflect the data present when the index is built. This
+--     script runs against an EMPTY database at container init, so an IVFFlat
+--     index would be trained on no data and would not find rows inserted later
+--     (you would have to REINDEX after loading). That actually bit us: unscoped
+--     similarity search returned no matches until the index was rebuilt as HNSW.
+--   * HNSW builds a multi-layer proximity graph incrementally and needs no
+--     training step, so it works correctly even though the index is created
+--     before any rows exist and documents are ingested continuously afterward.
+--     It also gives better recall/latency at scale, at the cost of slower builds
+--     and more memory.
 --
--- WHEN TO SWITCH TO HNSW: millions of vectors, recall problems traceable to
--- unlucky cluster boundaries, or a write-heavy workload where most vectors
--- arrive after the index is created. The swap is a one-line change:
---     CREATE INDEX ... USING hnsw (embedding vector_cosine_ops);
---
--- lists = 100 follows the pgvector rule of thumb (roughly rows/1000, with a
--- sensible floor) for a table expected to stay under ~100k rows.
+-- For this app (index created up-front, rows inserted continuously by the
+-- ingestion consumer) HNSW is the correct choice. You would only prefer IVFFlat
+-- if you bulk-load the vectors first and then build/REINDEX the index, typically
+-- at very large scale where its smaller memory footprint matters.
 CREATE INDEX IF NOT EXISTS idx_chunks_embedding
-    ON document_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+    ON document_chunks USING hnsw (embedding vector_cosine_ops);

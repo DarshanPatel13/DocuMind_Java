@@ -131,7 +131,7 @@ Anthropic has no embeddings API, so embeddings stay on OpenAI — but the chat m
 ## Project layout
 
 ```
-src/main/java/com/darshan/documind/
+src/main/java/com/org/documind/
 ├── controller/   DocumentController, AskController, ConversationController
 ├── service/      DocumentService, IngestionService, AskService, TextChunker,
 │                 PdfTextExtractor, ConversationService, RateLimitService

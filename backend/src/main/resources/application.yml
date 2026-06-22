@@ -54,8 +54,8 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.trusted.packages: com.darshan.documind.dto
-        spring.json.value.default.type: dto.com.org.documind.DocumentUploadedEvent
+        spring.json.trusted.packages: com.org.documind.dto
+        spring.json.value.default.type: com.org.documind.dto.DocumentUploadedEvent
         spring.json.use.type.headers: false
 
   # ---------------------------------------------------------------------------
@@ -104,7 +104,7 @@ springdoc:
 
 logging:
   level:
-    com.darshan.documind: INFO
+    com.org.documind: INFO
     org.apache.kafka: WARN      # the raw Kafka client is very chatty at INFO
 
 # -------------------------------------------------------------------------------

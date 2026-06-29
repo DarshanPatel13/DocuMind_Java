@@ -1,0 +1,140 @@
+# DocuMind (Java) — microservices RAG, mirroring documind_python.
+# One command:  docker compose up --build
+#   frontend  http://localhost:5173   gateway  http://localhost:8080
+#   login: demo / demo12345
+#
+# Free/local LLM:  docker compose --profile ollama up -d ollama
+#   then set CHAT_PROVIDER=ollama EMBEDDING_PROVIDER=ollama (e.g. in ./.env)
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: documind
+      POSTGRES_USER: documind
+      POSTGRES_PASSWORD: documind
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U documind -d documind"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  kafka:
+    image: apache/kafka:3.7.0
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  document-service:
+    build:
+      context: .
+      dockerfile: document-service/Dockerfile
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: documind
+      POSTGRES_USER: documind
+      POSTGRES_PASSWORD: documind
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      STORAGE_DIR: /data/storage
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-missing}
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - storage:/data/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      kafka: { condition: service_started }
+
+  query-service:
+    build:
+      context: .
+      dockerfile: query-service/Dockerfile
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: documind
+      POSTGRES_USER: documind
+      POSTGRES_PASSWORD: documind
+      MONGODB_URI: mongodb://mongodb:27017/documind
+      CHAT_PROVIDER: ${CHAT_PROVIDER:-openai}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-missing}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OLLAMA_BASE_URL: http://ollama:11434
+    depends_on:
+      postgres: { condition: service_healthy }
+      mongodb: { condition: service_healthy }
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports: ["8080:8080"]
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DOCUMENT_SERVICE_HOST: document-service
+      QUERY_SERVICE_HOST: query-service
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-use-32-plus-characters!!}
+      DEMO_USERNAME: ${DEMO_USERNAME:-demo}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-demo12345}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-10}
+      CORS_ORIGINS: http://localhost:5173
+    depends_on:
+      redis: { condition: service_healthy }
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+    ports: ["5173:80"]
+    depends_on: [gateway]
+
+  # Free/local LLM — opt in:  docker compose --profile ollama up -d ollama
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    ports: ["11434:11434"]
+    volumes:
+      - ollama:/root/.ollama
+
+volumes:
+  pgdata:
+  mongodata:
+  storage:
+  ollama:

@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+            allowed-methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+            allowed-headers: "*"
+            allow-credentials: true
+      routes:
+        - id: documents
+          uri: http://${DOCUMENT_SERVICE_HOST:localhost}:${DOCUMENT_SERVICE_PORT:8001}
+          predicates:
+            - Path=/api/documents,/api/documents/**
+        - id: ask
+          uri: http://${QUERY_SERVICE_HOST:localhost}:${QUERY_SERVICE_PORT:8002}
+          predicates:
+            - Path=/api/ask
+        - id: conversations
+          uri: http://${QUERY_SERVICE_HOST:localhost}:${QUERY_SERVICE_PORT:8002}
+          predicates:
+            - Path=/api/conversations/**
+
+documind:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-change-me-please-use-32-plus-characters!!}
+    expiry-minutes: ${JWT_EXPIRY_MINUTES:60}
+  auth:
+    demo-username: ${DEMO_USERNAME:demo}
+    demo-password: ${DEMO_PASSWORD:demo12345}
+  ratelimit:
+    per-minute: ${RATE_LIMIT_PER_MINUTE:10}

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { Card, CardContent } from "@/components/ui/card";
+
 import { ChatView } from "../components/ChatView";
 import { CitationChip } from "../components/CitationChip";
 import { HistorySidebar } from "../components/HistorySidebar";
@@ -34,7 +36,7 @@ export function AskPage() {
   const readyDocs = (documents ?? []).filter((d) => d.status === "READY");
 
   return (
-    <div className="mx-auto flex max-w-5xl gap-8">
+    <div className="mx-auto flex max-w-5xl gap-10">
       <HistorySidebar
         conversationIds={conversationIds}
         selectedId={historyId}
@@ -42,14 +44,14 @@ export function AskPage() {
       />
 
       <div className="flex-1 space-y-6">
-        <div>
-          <h1 className="mb-1 text-2xl font-semibold text-gray-900">Ask</h1>
-          <label className="text-sm text-gray-600">
-            Scope:{" "}
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-4xl font-semibold tracking-tight">Ask</h1>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            Scope
             <select
               value={selectedDoc}
               onChange={(e) => setSelectedDoc(e.target.value)}
-              className="rounded border border-gray-300 px-2 py-1"
+              className="rounded-full border border-input bg-card px-3.5 py-1.5 text-foreground shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="">All documents</option>
               {readyDocs.map((d) => (
@@ -61,31 +63,34 @@ export function AskPage() {
           </label>
         </div>
 
-        <ChatView
-          documentId={selectedDoc || undefined}
-          onConversationId={rememberConversation}
-        />
+        <ChatView documentId={selectedDoc || undefined} onConversationId={rememberConversation} />
 
         {historyId && (
-          <section className="border-t border-gray-200 pt-4">
-            <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <section className="border-t pt-6">
+            <h2 className="mb-3 text-lg font-semibold tracking-tight">
               History · {historyId.slice(0, 8)}…
             </h2>
-            {history.isLoading && <p className="text-gray-500">Loading…</p>}
-            {history.isError && <p className="text-red-600">Could not load this conversation.</p>}
+            {history.isLoading && <p className="text-muted-foreground">Loading…</p>}
+            {history.isError && (
+              <p className="text-destructive">Could not load this conversation.</p>
+            )}
             <div className="space-y-4">
               {history.data?.turns.map((turn, i) => (
-                <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
-                  <p className="font-medium text-gray-900">Q: {turn.question}</p>
-                  <p className="mt-1 whitespace-pre-wrap text-gray-800">{turn.answer}</p>
-                  {turn.citations.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {turn.citations.map((c, j) => (
-                        <CitationChip key={j} citation={c} />
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Card key={i} className="rounded-3xl border-border/60 bg-card/60 shadow-soft backdrop-blur-xl">
+                  <CardContent className="p-5">
+                    <p className="font-medium">Q: {turn.question}</p>
+                    <p className="mt-1.5 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
+                      {turn.answer}
+                    </p>
+                    {turn.citations.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {turn.citations.map((c, j) => (
+                          <CitationChip key={j} citation={c} />
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </section>

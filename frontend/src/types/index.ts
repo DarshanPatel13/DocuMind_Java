@@ -1,11 +1,10 @@
-// Shared types — these mirror the Java DTOs in
-// src/main/java/com/org/documind/dto/*. Jackson serializes record components
-// as camelCase, so the field names here are camelCase (chunkIndex, documentId,
-// conversationId, uploadedAt, chunkCount) — unlike the Python/snake_case build.
+// Shared types — these mirror the backend Pydantic models in
+// backend/app/models/schemas.py. Keep them in sync.
 
 export interface Citation {
   filename: string;
-  chunkIndex: number;
+  chunk_index: number;
+  snippet?: string | null;
 }
 
 export type DocumentStatus = "UPLOADED" | "PROCESSING" | "READY" | "FAILED";
@@ -14,28 +13,26 @@ export interface DocumentResponse {
   id: string;
   filename: string;
   status: DocumentStatus;
-  uploadedAt: string;
-  chunkCount: number;
-  failureReason?: string | null;
+  uploaded_at: string;
+  chunk_count: number;
+  failure_reason?: string | null;
 }
 
 export interface UploadResponse {
-  documentId: string;
+  document_id: string;
   status: string;
   message: string;
 }
 
-export interface AskRequest {
-  question: string;
-  documentId?: string;
-  conversationId?: string;
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
 }
 
-// The Java backend returns the full answer in one JSON response (no streaming).
-export interface AskResponse {
-  answer: string;
-  citations: Citation[];
-  conversationId: string;
+export interface AskRequest {
+  question: string;
+  document_id?: string;
+  conversation_id?: string;
 }
 
 export interface ConversationTurn {
@@ -46,6 +43,24 @@ export interface ConversationTurn {
 }
 
 export interface ConversationHistory {
-  conversationId: string;
+  conversation_id: string;
   turns: ConversationTurn[];
+}
+
+// Parsed Server-Sent Events from POST /api/ask.
+export interface CitationsEvent {
+  conversation_id: string;
+  citations: Citation[];
+}
+
+export type StreamEvent =
+  | { type: "citations"; conversation_id: string; citations: Citation[] }
+  | { type: "token"; token: string }
+  | { type: "done" };
+
+export interface AskStreamHandlers {
+  onCitations: (event: CitationsEvent) => void;
+  onToken: (token: string) => void;
+  onDone: () => void;
+  onError: (error: Error) => void;
 }

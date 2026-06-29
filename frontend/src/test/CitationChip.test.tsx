@@ -5,7 +5,7 @@ import { CitationChip } from "../components/CitationChip";
 
 describe("CitationChip", () => {
   it("renders the citation as [filename, chunk N]", () => {
-    render(<CitationChip citation={{ filename: "policy.pdf", chunkIndex: 2 }} />);
+    render(<CitationChip citation={{ filename: "policy.pdf", chunk_index: 2 }} />);
     expect(screen.getByText(/\[policy\.pdf, chunk 2\]/)).toBeInTheDocument();
   });
 });

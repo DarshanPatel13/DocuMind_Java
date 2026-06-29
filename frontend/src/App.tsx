@@ -1,39 +1,81 @@
+import { FileText, MessagesSquare, Sparkles } from "lucide-react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+import { useAuth } from "./auth/AuthContext";
 import { AskPage } from "./pages/AskPage";
+import { LandingPage } from "./pages/LandingPage";
 import { UploadPage } from "./pages/UploadPage";
 
-function NavTab({ to, label }: { to: string; label: string }) {
+function NavTab({ to, label, icon }: { to: string; label: string; icon: React.ReactNode }) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `rounded-md px-3 py-1.5 text-sm font-medium ${
-          isActive ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"
-        }`
+        cn(
+          "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+          isActive
+            ? "bg-card text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
+        )
       }
     >
+      {icon}
       {label}
     </NavLink>
   );
 }
 
-export default function App() {
+function Brand() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <span className="text-lg font-bold">
-            Docu<span className="text-blue-600">Mind</span>
-          </span>
-          <nav className="flex gap-1">
-            <NavTab to="/upload" label="Upload" />
-            <NavTab to="/ask" label="Ask" />
-          </nav>
+    <span className="flex items-center gap-2.5 text-[17px] font-semibold tracking-tight">
+      <span className="grid h-8 w-8 place-items-center rounded-xl brand-gradient shadow-glow">
+        <Sparkles className="h-4 w-4 text-white" />
+      </span>
+      DocuMind
+    </span>
+  );
+}
+
+export default function App() {
+  const { isAuthenticated, logout } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/60 backdrop-blur-xl">
+          <div className="container flex h-16 items-center justify-between">
+            <Brand />
+            <ThemeToggle />
+          </div>
+        </header>
+        <LandingPage />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/60 backdrop-blur-xl">
+        <div className="container flex h-16 items-center justify-between">
+          <Brand />
+          <div className="flex items-center gap-2">
+            <nav className="flex items-center gap-1 rounded-full bg-secondary/70 p-1">
+              <NavTab to="/upload" label="Upload" icon={<FileText className="h-4 w-4" />} />
+              <NavTab to="/ask" label="Ask" icon={<MessagesSquare className="h-4 w-4" />} />
+            </nav>
+            <ThemeToggle />
+            <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground">
+              Sign out
+            </Button>
+          </div>
         </div>
       </header>
 
-      <main className="px-4 py-8">
+      <main className="container animate-rise py-10">
         <Routes>
           <Route path="/" element={<Navigate to="/upload" replace />} />
           <Route path="/upload" element={<UploadPage />} />

@@ -1,0 +1,61 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: document-service
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:documind}
+    username: ${POSTGRES_USER:documind}
+    password: ${POSTGRES_PASSWORD:documind}
+  jpa:
+    hibernate:
+      ddl-auto: none          # schema comes from init SQL (pgvector extension + HNSW index)
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: documind-ingestion
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.documind.contracts
+        spring.json.value.default.type: com.documind.contracts.DocumentUploadedEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    listener:
+      ack-mode: record
+  ai:
+    model:
+      embedding: ${EMBEDDING_PROVIDER:openai}     # openai | ollama (one switch)
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-missing}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      embedding:
+        options:
+          model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      embedding:
+        options:
+          model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+
+documind:
+  storage-dir: ${STORAGE_DIR:/data/storage}
+  kafka:
+    document-events-topic: document-events
+    document-events-dlt-topic: document-events.DLT
+  chunking:
+    chunk-size-tokens: 800
+    overlap-tokens: 100
+    chars-per-token: 4

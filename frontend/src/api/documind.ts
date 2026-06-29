@@ -1,13 +1,21 @@
 import type { AxiosProgressEvent } from "axios";
 
+import { getToken } from "../auth/token";
 import type {
   AskRequest,
-  AskResponse,
+  AskStreamHandlers,
   ConversationHistory,
   DocumentResponse,
+  TokenResponse,
   UploadResponse,
+  StreamEvent,
 } from "../types";
-import { apiClient } from "./client";
+import { API_BASE_URL, apiClient } from "./client";
+
+export async function login(username: string, password: string): Promise<TokenResponse> {
+  const { data } = await apiClient.post<TokenResponse>("/auth/login", { username, password });
+  return data;
+}
 
 export async function listDocuments(): Promise<DocumentResponse[]> {
   const { data } = await apiClient.get<DocumentResponse[]>("/api/documents");
@@ -39,10 +47,76 @@ export async function getConversation(conversationId: string): Promise<Conversat
 }
 
 /**
- * Ask a question. The Java backend returns the full answer + citations in one
- * JSON response (no streaming), so this is a plain POST.
+ * POST /api/ask and consume the Server-Sent Events stream, dispatching each
+ * parsed event to the handlers. Uses fetch + ReadableStream because we need
+ * incremental reads — axios buffers the whole response.
  */
-export async function askQuestion(body: AskRequest): Promise<AskResponse> {
-  const { data } = await apiClient.post<AskResponse>("/api/ask", body);
-  return data;
+export async function streamAsk(
+  body: AskRequest,
+  handlers: AskStreamHandlers,
+  signal?: AbortSignal,
+): Promise<void> {
+  let response: Response;
+  try {
+    const token = getToken();
+    response = await fetch(`${API_BASE_URL}/api/ask`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+      signal,
+    });
+  } catch (error) {
+    handlers.onError(error instanceof Error ? error : new Error("Network error"));
+    return;
+  }
+
+  if (!response.ok || !response.body) {
+    handlers.onError(new Error(`Request failed with status ${response.status}`));
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      // SSE events are separated by a blank line.
+      let separator = buffer.indexOf("\n\n");
+      while (separator !== -1) {
+        const rawEvent = buffer.slice(0, separator);
+        buffer = buffer.slice(separator + 2);
+        dispatchEvent(rawEvent, handlers);
+        separator = buffer.indexOf("\n\n");
+      }
+    }
+    handlers.onDone();
+  } catch (error) {
+    handlers.onError(error instanceof Error ? error : new Error("Stream error"));
+  }
+}
+
+function dispatchEvent(rawEvent: string, handlers: AskStreamHandlers): void {
+  const dataLine = rawEvent.split("\n").find((line) => line.startsWith("data:"));
+  if (!dataLine) return;
+  const payload = dataLine.slice(5).trim();
+  if (!payload) return;
+
+  const event = JSON.parse(payload) as StreamEvent;
+  if (event.type === "citations") {
+    handlers.onCitations({
+      conversation_id: event.conversation_id,
+      citations: event.citations,
+    });
+  } else if (event.type === "token") {
+    handlers.onToken(event.token);
+  }
+  // "done" is signalled by the reader finishing; handled in the caller.
 }

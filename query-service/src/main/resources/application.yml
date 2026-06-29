@@ -1,0 +1,58 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: query-service
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+  mvc:
+    async:
+      request-timeout: 300000          # SSE responses are long-lived
+  # Postgres: read side of the SHARED pgvector store (via documind-common's JdbcTemplate).
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:documind}
+    username: ${POSTGRES_USER:documind}
+    password: ${POSTGRES_PASSWORD:documind}
+  # MongoDB: conversation history.
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/documind}
+      auto-index-creation: true
+  ai:
+    model:
+      chat: ${CHAT_PROVIDER:openai}          # openai | ollama | anthropic
+      embedding: ${EMBEDDING_PROVIDER:openai}
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-missing}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      chat:
+        options:
+          model: ${OPENAI_CHAT_MODEL:gpt-4o-mini}
+          temperature: 0.2
+      embedding:
+        options:
+          model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        options:
+          model: ${OLLAMA_CHAT_MODEL:qwen2.5:1.5b}
+          temperature: 0.2
+      embedding:
+        options:
+          model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      chat:
+        options:
+          model: ${ANTHROPIC_CHAT_MODEL:claude-3-5-sonnet-latest}
+          temperature: 0.2
+
+documind:
+  retrieval:
+    top-k: 4
+    candidates: 20
+    hybrid-enabled: true
+    whole-document-limit: 120

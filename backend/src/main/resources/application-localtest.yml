@@ -1,0 +1,8 @@
+# LOCAL TEST PROFILE — run with: --spring.profiles.active=localtest
+# Points Spring AI at a local fake OpenAI server (dm-testkit/fake-openai.js) so
+# the app can be exercised end-to-end WITHOUT a real OPENAI_API_KEY.
+# Not for production. Set OPENAI_API_KEY to any non-empty dummy value.
+spring:
+  ai:
+    openai:
+      base-url: http://localhost:8089

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.documind</groupId>
+        <artifactId>documind-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>documind-common</artifactId>
+    <name>documind-common</name>
+    <description>Shared infrastructure: pgvector store, hybrid retrieval + RRF,
+        config, and the correlation-id filter (Java equivalent of libs/documind_common).
+        Deliberately free of any Spring AI provider dependency — callers inject the
+        EmbeddingModel and pass embeddings in as vector literals.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.documind</groupId>
+            <artifactId>documind-contracts</artifactId>
+        </dependency>
+
+        <!-- @ConfigurationProperties, logging/MDC, auto-configuration glue. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!-- JdbcTemplate for the native pgvector + full-text SQL. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- OncePerRequestFilter (spring-web) + servlet API for the correlation
+             filter, WITHOUT dragging an embedded servlet container into the lib.
+             The two servlet services that use this lib provide the container. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

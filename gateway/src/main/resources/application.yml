@@ -13,13 +13,8 @@ spring:
       port: ${REDIS_PORT:6379}
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
-            allowed-methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
-            allowed-headers: "*"
-            allow-credentials: true
+      # CORS is handled globally by CorsConfig (covers controllers + routes),
+      # not gateway globalcors (which only covers routed requests).
       routes:
         - id: documents
           uri: http://${DOCUMENT_SERVICE_HOST:localhost}:${DOCUMENT_SERVICE_PORT:8001}
@@ -35,6 +30,8 @@ spring:
             - Path=/api/conversations/**
 
 documind:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
   jwt:
     secret: ${JWT_SECRET:dev-secret-change-me-please-use-32-plus-characters!!}
     expiry-minutes: ${JWT_EXPIRY_MINUTES:60}
